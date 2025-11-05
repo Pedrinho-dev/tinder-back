@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import userSchema from "../models/Users.js";
 
 const router = express.Router();
@@ -21,15 +22,19 @@ router.get("/:id", async (req, res) => {
     }
 })
 
-router.post("/", async (req, res) => {
+
+const upload = multer({dest: "./uploads"})
+router.post("/", upload.single("photo"), async (req, res) => {
     try {
         const { name, password, date, gender } = req.body;
-        const user = await userSchema.create({ name, password, date, gender });
+        const user = await userSchema.create({ name, password, date, gender, photo: req.file.filename });
         res.send(user);
     } catch (err) {
         res.status(500).send(err);
     }
 })
+
+
 
 router.put("/:id", async (req, res) => {
     try {
