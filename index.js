@@ -1,8 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv'
-import cors from "cors"
-import userRoutes from "./routes/userRoutes.js"
+import dotenv from 'dotenv';
+import cors from "cors";
+import userRoutes from "./routes/userRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 const port = process.env.PORT;
@@ -16,7 +17,8 @@ server.get('/', (_, res) => {
     res.send('Alive!!')
 })
 
-server.use("/user", userRoutes)
+server.use("/user", userRoutes);
+server.use("/auth", authRoutes);
 
 mongoose.connect(mongo_uri).then(() => {
     server.listen(port, () => {
