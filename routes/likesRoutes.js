@@ -61,4 +61,58 @@ route.post("/likes", authMiddleware, async (req, res) => {
     }
 });
 
+route.get("/", async (_, res) => {
+    try {
+        const likes = await Like.find();
+        res.send(likes)
+    } catch (err) {
+        res.status(500).send(err)
+    }
+})
+
+route.get("/received/:id", authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const receivedLikes = await Like.find({ liked: id }).populate("liker");
+        res.status(200).send(receivedLikes);
+    } catch (err) {
+        res.status(500).send({ message: "Erro ao buscar likes recebidos.", detail: err.message });
+    }
+});
+
+route.get("/matches", async (_, res) => {
+    try {
+        const match = await Match.find();
+        res.send(match)
+    } catch (err) {
+        res.status(500).send(err)
+    }
+})
+
+route.get("/matches/:id", authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const matches = await Match.find({
+            $or: [
+                { userLiked: id },
+                { userLiker: id }
+            ]
+        }).populate("userLiked").populate("userLiker");
+
+
+        const otherUsers = matches.map(match => {
+            if (match.userLiked._id.toString() === id) {
+                return match.userLiker;
+            } else {
+                return match.userLiked;
+            }
+        });
+
+        res.status(200).send(otherUsers);
+    } catch (err) {
+        res.status(500).send({ message: "Erro ao buscar matches.", detail: err.message });
+    }
+});
+
 export default route;
