@@ -1,5 +1,6 @@
 import express from "express";
 import multer from "multer";
+import bcrypt from "bcrypt"
 import userSchema from "../models/Users.js";
 import authMiddleware from "../middlewares/authMiddleware.js";
 
@@ -27,15 +28,27 @@ router.get("/:id", authMiddleware, async (req, res) => {
 
 router.put("/:id", authMiddleware, upload.single("photo"), async (req, res) => {
     try {
-        const updates = req.body;
+        const { name, password, date, gender, interest } = req.body;
+
+        const updateData = { name, date, gender, interest };
+
+        if (password) {
+            updateData.password = await bcrypt.hash(password, 10);
+        }
 
         if (req.file) {
-            updates.photo = req.file.filename
+            updateData.photo = req.file.filename;
         }
-        const user = await userSchema.findByIdAndUpdate(req.params.id, updates, { new: true });
-        res.send(user)
+
+        const user = await userSchema.findByIdAndUpdate(req.params.id, updateData, { new: true });
+
+        if (!user) {
+            return res.status(404).send({ message: "User not found" });
+        }
+
+        res.status(200).send(user);
     } catch (err) {
-        res.status(500).send(err)
+        res.status(500).send({ message: "Error updating user", detail: err.message });
     }
 })
 
