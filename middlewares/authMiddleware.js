@@ -1,10 +1,14 @@
 import jwt from "jsonwebtoken";
 
 const authMiddleware = (req, res, next) => {
-    const token = req.headers["authorization"];
+    let token = req.headers["authorization"];
 
     if (!token) {
         return res.status(401).send("Access denied!");
+    }
+
+    if (token.startsWith("Bearer ")) {
+        token = token.slice(7);
     }
 
     try {
@@ -14,8 +18,6 @@ const authMiddleware = (req, res, next) => {
     } catch (err) {
         res.status(400).send("Invalid token.");
     }
-
-
-}
+};
 
 export default authMiddleware;

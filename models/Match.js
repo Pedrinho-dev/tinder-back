@@ -1,18 +1,17 @@
 import mongoose from "mongoose";
 
-const likeSchema = mongoose.Schema({
-    liked: {
+const matchSchema = mongoose.Schema({
+    userLiked: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: "User",
     },
-    liker: {
+    userLiker: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: "User",
     },
-});
+})
 
-const Like = mongoose.model("Likes", likeSchema);
-
-export default Like;
+const Match = mongoose.model("Match", matchSchema);
+export default Match;

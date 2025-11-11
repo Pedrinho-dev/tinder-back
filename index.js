@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import likeRoutes from "./routes/likesRoutes.js";
 
 dotenv.config();
 const port = process.env.PORT;
@@ -19,6 +20,7 @@ server.get('/', (_, res) => {
 
 server.use("/user", userRoutes);
 server.use("/auth", authRoutes);
+server.use("/like", likeRoutes);
 
 mongoose.connect(mongo_uri).then(() => {
     server.listen(port, () => {
