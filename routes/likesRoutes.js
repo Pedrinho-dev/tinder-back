@@ -20,7 +20,8 @@ const checkMatch = async (currentUserId, likedUserId) => {
 
         if (!alreadyMatched) {
             await Match.create({ userLiked: currentUserId, userLiker: likedUserId });
-            console.log("Its a MATCHHHH!!")
+            console.log("Its a MATCHHHH!!");
+            return { isMatch: true, match: newMatch };
         }
     }
     return isMatch;
@@ -31,11 +32,11 @@ route.post("/likes", authMiddleware, async (req, res) => {
         const { likedId } = req.body ?? {};
 
         if (!likedId) {
-            return res.status(400).send({ message: "likedId is required ." });
+            return res.status(400).send({ message: "likedId is required." });
         }
 
         if (likedId === req.userId) {
-            return res.status(400).send({ message: "You cant like yourself." });
+            return res.status(400).send({ message: "You can't like yourself." });
         }
 
         const likedUser = await User.findById(likedId);
@@ -45,8 +46,8 @@ route.post("/likes", authMiddleware, async (req, res) => {
 
         const existing = await Like.findOne({ liked: likedId, liker: req.userId });
         if (existing) {
-            const isMatch = await checkMatch(req.userId, likedId);
-            return res.status(200).send({ isMatch });
+            const { isMatch, match } = await checkMatch(req.userId, likedId);
+            return res.status(200).send({ isMatch, match });
         }
 
         const like = await Like.create({
@@ -54,8 +55,8 @@ route.post("/likes", authMiddleware, async (req, res) => {
             liker: req.userId,
         });
 
-        const isMatch = await checkMatch(req.userId, likedId);
-        res.status(201).send({ isMatch, likeId: like._id });
+        const { isMatch, match } = await checkMatch(req.userId, likedId);
+        res.status(201).send({ isMatch, likeId: like._id, match });
     } catch (err) {
         res.status(500).send({ message: "Erro ao registrar like.", detail: err.message });
     }
